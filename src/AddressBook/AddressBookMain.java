@@ -26,18 +26,47 @@ public class AddressBookMain {
 		
 	}
 	public static void main(String args[]) {
+		Scanner sc= new Scanner(System.in);
 		System.out.println("Welcome to Address Book System");
 		AddressBook book = new AddressBook();
-		for(int i=0;i<3;i++) {
+		boolean loop=true;
+		while(loop) {
+		System.out.println("Enter 1 to add contact\n"
+				+ "Enter 2 to view all contacts\n"
+				+ "Enter 3 to edit a contact/n"
+				+ "Enter 0 to exit");
+		int i=Integer.parseInt(sc.nextLine());
+		switch (i) {
+		case 1:
 			book.addDetails(getContact());
+			break;
+		case 2:
+			book.viewAllContacts();
+			break;
+		case 3:
+			System.out.println("Enter first name");
+			String first_name=sc.nextLine();
+			System.out.println("Enter last name");
+			String last_name=sc.nextLine();
+			boolean is_present = book.editContact(first_name, last_name);
+			if(is_present==false)
+				System.out.println("Contact not found");
+			else
+				System.out.println("Contact edited");
+			break;
+		default :
+			loop=false;
+			break;
+			
+				
 		}
-		book.viewAllContacts();
+		}
 		
 	}
 }
 
 class Contact {
-	private String f_name, l_name, address, city, state, zip, phone_number, email;
+	protected String f_name, l_name, address, city, state, zip, phone_number, email;
 	Contact(String f_name,String l_name,String address,String city,String state,String zip,String phone_number,String email) {
 		this.f_name=f_name;
 		this.l_name=l_name;
@@ -52,7 +81,6 @@ class Contact {
 		return "Name :"+f_name+" " + l_name+"\nAddress :"+address + " " + city + " " + state + " " + zip + "\nPhone Number "+phone_number+"\nEmail id :  "+email;
 	}
 	Contact(){
-		
 	}
 	
 }
@@ -69,6 +97,31 @@ class AddressBook extends Contact {
 				System.out.println(c);
 			}
 		}
+		
+		public boolean editContact(String first_name, String last_name) {
+			Scanner sc=new Scanner(System.in);
+			boolean check=false;
+			for(Contact c: address_book) {
+				if(c.f_name.equalsIgnoreCase(first_name)&&c.l_name.equalsIgnoreCase(last_name)) {
+					System.out.println("Enter Address");
+					c.address=sc.nextLine();
+					System.out.println("Enter City");
+					c.city=sc.nextLine();
+					System.out.println("Enter State");
+					c.state=sc.nextLine();
+					System.out.println("Enter ZIP");
+					c.zip=sc.nextLine();
+					System.out.println("Enter Phone Number");
+					c.phone_number=sc.nextLine();
+					System.out.println("Enter Email Id");
+					c.email=sc.nextLine();
+					check=true;
+					break;
+				}
+			}
+			return check;
+		}
+		
 		AddressBook(String f_name,String l_name,String address,String city,String state,String zip,String phone_number,String email){
 			super(f_name, l_name, address, city, state, zip, phone_number, email);
 		}
