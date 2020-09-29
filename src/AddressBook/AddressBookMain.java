@@ -1,6 +1,6 @@
 package AddressBook;
 
-import java.util.Scanner;
+import java.util.*;
 
 public class AddressBookMain {
 	public static Contact getContact() {
@@ -27,12 +27,17 @@ public class AddressBookMain {
 	}
 	public static void main(String args[]) {
 		System.out.println("Welcome to Address Book System");
-		System.out.println(getContact());
+		AddressBook book = new AddressBook();
+		for(int i=0;i<3;i++) {
+			book.addDetails(getContact());
+		}
+		book.viewAllContacts();
+		
 	}
 }
 
 class Contact {
-	private final String f_name, l_name, address, city, state, zip, phone_number, email;
+	private String f_name, l_name, address, city, state, zip, phone_number, email;
 	Contact(String f_name,String l_name,String address,String city,String state,String zip,String phone_number,String email) {
 		this.f_name=f_name;
 		this.l_name=l_name;
@@ -46,5 +51,28 @@ class Contact {
 	public String toString() {
 		return "Name :"+f_name+" " + l_name+"\nAddress :"+address + " " + city + " " + state + " " + zip + "\nPhone Number "+phone_number+"\nEmail id :  "+email;
 	}
+	Contact(){
+		
+	}
 	
+}
+
+class AddressBook extends Contact {
+		private ArrayList<Contact> address_book = new ArrayList<Contact>();
+		
+		public void addDetails(Contact contact) {
+			address_book.add(contact);
+		}
+		
+		public void viewAllContacts() {
+			for(Contact c : address_book) {
+				System.out.println(c);
+			}
+		}
+		AddressBook(String f_name,String l_name,String address,String city,String state,String zip,String phone_number,String email){
+			super(f_name, l_name, address, city, state, zip, phone_number, email);
+		}
+		AddressBook(){
+			
+		}
 }
