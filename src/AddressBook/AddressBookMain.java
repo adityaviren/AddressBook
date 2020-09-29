@@ -33,7 +33,8 @@ public class AddressBookMain {
 		while(loop) {
 		System.out.println("Enter 1 to add contact\n"
 				+ "Enter 2 to view all contacts\n"
-				+ "Enter 3 to edit a contact/n"
+				+ "Enter 3 to edit a contact\n"
+				+ "Enter 4 to delete a contact\n"
 				+ "Enter 0 to exit");
 		int i=Integer.parseInt(sc.nextLine());
 		switch (i) {
@@ -48,12 +49,24 @@ public class AddressBookMain {
 			String first_name=sc.nextLine();
 			System.out.println("Enter last name");
 			String last_name=sc.nextLine();
-			boolean is_present = book.editContact(first_name, last_name);
-			if(is_present==false)
+			boolean is_present1 = book.editContact(first_name, last_name);
+			if(is_present1==false)
 				System.out.println("Contact not found");
 			else
 				System.out.println("Contact edited");
 			break;
+		case 4:
+			System.out.println("Enter first name");
+			String f_name=sc.nextLine();
+			System.out.println("Enter last name");
+			String l_name=sc.nextLine();
+			boolean is_present2 = book.deleteContact(f_name, l_name);
+			if(is_present2==false)
+				System.out.println("Contact not found");
+			else
+				System.out.println("Contact deleted");
+			break;
+			
 		default :
 			loop=false;
 			break;
@@ -96,6 +109,18 @@ class AddressBook extends Contact {
 			for(Contact c : address_book) {
 				System.out.println(c);
 			}
+		}
+		public boolean deleteContact(String first_name, String last_name) {
+			Scanner sc=new Scanner(System.in);
+			boolean check=false;
+			for(Contact c: address_book) {
+				if(c.f_name.equalsIgnoreCase(first_name)&&c.l_name.equalsIgnoreCase(last_name)) {
+					address_book.remove(c);
+					check=true;
+					break;
+				}
+			}
+			return check;
 		}
 		
 		public boolean editContact(String first_name, String last_name) {
