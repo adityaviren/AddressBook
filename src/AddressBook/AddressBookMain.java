@@ -2,14 +2,14 @@ package AddressBook;
 
 import java.util.*;
 
+import static AddressBook.AddressBookMain.getContact;
+
 public class AddressBookMain {
-	public static Contact getContact() {
+	public static Contact getContact(String first, String last) {
 		Scanner sc = new Scanner(System.in);
 		Contact c = new Contact();
-		System.out.println("Enter First Name");
-		c.setFirst(sc.nextLine());
-		System.out.println("Enter Last Name");
-		c.setLast(sc.nextLine());
+		c.setFirst(first);
+		c.setLast(last);
 		System.out.println("Enter Address");
 		c.setAddress(sc.nextLine());
 		System.out.println("Enter City");
@@ -39,7 +39,7 @@ public class AddressBookMain {
 		boolean loop1 = true, loop2 = true,add_avail;
 		int choice1, choice2;
 		AddressBook book;
-		String name,address_book_name;
+		String name,address_book_name,first_name,last_name;
 		while (loop1) {
 			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" + "Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
@@ -65,7 +65,14 @@ public class AddressBookMain {
 						choice2 = Integer.parseInt(sc.nextLine());
 						switch (choice2) {
 						case 1:
-							book.addDetails(getContact());
+							System.out.println("Enter first name");
+							first_name=sc.nextLine();
+							System.out.println("Enter last name");
+							last_name=sc.nextLine();
+							if(book.nameExists(first_name,last_name))
+								System.out.println("Contact already exists");
+							else
+								book.addDetails(getContact(first_name, last_name));
 							break;
 						case 2:
 							book.viewAllContacts();
@@ -94,13 +101,20 @@ public class AddressBookMain {
 }
 
 class Contact {
-	protected String f_name, l_name, address, city, state, zip, phone_number, email;
+	protected static String f_name;
+	protected static String l_name;
+	protected String address;
+	protected String city;
+	protected String state;
+	protected String zip;
+	protected String phone_number;
+	protected String email;
 
 	public void setFirst(String f_name) {
 		this.f_name = f_name;
 	}
 
-	public String getFirst() {
+	public static String getFirst() {
 		return f_name;
 	}
 
@@ -108,7 +122,7 @@ class Contact {
 		this.l_name = l_name;
 	}
 
-	public String getLast() {
+	public static String getLast() {
 		return l_name;
 	}
 
@@ -168,7 +182,7 @@ class Contact {
 }
 
 class AddressBook extends Contact {
-	private ArrayList<Contact> address_book = new ArrayList<Contact>();
+	private ArrayList<Contact> address_book = new ArrayList<>();
 	private String name;
 
 	public void setName(String name) {
@@ -179,6 +193,11 @@ class AddressBook extends Contact {
 		return name;
 	}
 
+	public boolean nameExists(String first_name, String last_name) {
+		return address_book.stream().anyMatch(contact -> contact.getFirst().equalsIgnoreCase(first_name) &&
+				contact.getLast().equalsIgnoreCase(last_name));
+	}
+
 	public void addDetails(Contact contact) {
 		address_book.add(contact);
 	}
@@ -187,6 +206,12 @@ class AddressBook extends Contact {
 		for (Contact c : address_book) {
 			System.out.println(c);
 		}
+	}
+	public int countByCity(String city){
+		return (int) address_book.stream().filter(c -> c.getCity().equalsIgnoreCase(city)).count();
+	}
+	public int countByState(String state){
+		return (int) address_book.stream().filter(c -> c.getState().equalsIgnoreCase(state)).count();
 	}
 
 	public void deleteContact() {
@@ -218,18 +243,7 @@ class AddressBook extends Contact {
 		boolean check = false;
 		for (Contact c : address_book) {
 			if (c.f_name.equalsIgnoreCase(first_name) && c.l_name.equalsIgnoreCase(last_name)) {
-				System.out.println("Enter Address");
-				c.setAddress(sc.nextLine());
-				System.out.println("Enter City");
-				c.setCity(sc.nextLine());
-				System.out.println("Enter State");
-				c.setState(sc.nextLine());
-				System.out.println("Enter ZIP");
-				c.setZip(sc.nextLine());
-				System.out.println("Enter Phone Number");
-				c.setPhone(sc.nextLine());
-				System.out.println("Enter Email Id");
-				c.setEmail(sc.nextLine());
+				c=getContact(first_name,last_name);
 				check = true;
 				break;
 			}
@@ -247,18 +261,25 @@ class AddressBook extends Contact {
 
 class AddressBookDictionary extends AddressBook {
 
-	Map<String, AddressBook> address_book = new HashMap<>();
+	Map<String, AddressBook> address_book_dictionary = new HashMap<>();
 
 	public void addAddressBook(String name,AddressBook addressbook) {
-		address_book.put(name,addressbook);
+		address_book_dictionary.put(name,addressbook);
 	}
 
 	public boolean isPresentAddressBook(String name) {
-		return address_book.containsKey(name);
+		return address_book_dictionary.containsKey(name);
 	}
 
 	public AddressBook returnAddressBook(String name) {
-		return address_book.get(name);
+		return address_book_dictionary.get(name);
+	}
+
+	public int countByCity(String city) {
+		return address_book_dictionary.values().stream().mapToInt(addressBook -> addressBook.countByCity(city)).sum();
+	}
+	public int countByState(String state) {
+		return address_book_dictionary.values().stream().mapToInt(addressBook -> addressBook.countByState(state)).sum();
 	}
 
 }
