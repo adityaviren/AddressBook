@@ -32,21 +32,22 @@ public class AddressBookMain {
 		return ab;
 	}
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		AddressBookDictionary abd = new AddressBookDictionary();
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Welcome to Address Book System");
-		boolean loop1 = true, loop2 = true,is_present1,is_present2,add_avail;
+		boolean loop1 = true, loop2 = true,add_avail;
 		int choice1, choice2;
 		AddressBook book;
-		String name;
+		String name,address_book_name;
 		while (loop1) {
 			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" + "Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
 			case 1:
 				System.out.println("Enter the name of Address Book");
-				abd.addAddressBook(getAddressBook(sc.nextLine()));
+				address_book_name=sc.nextLine();
+				abd.addAddressBook(address_book_name,getAddressBook(address_book_name));
 				break;
 			case 2:
 				System.out.println("Enter the name of Address Book");
@@ -160,8 +161,8 @@ class Contact {
 	}
 
 	public String toString() {
-		return "Name :" + f_name + " " + l_name + "\nAddress :" + address + " " + city + " " + state + " " + zip
-				+ "\nPhone Number " + phone_number + "\nEmail id :  " + email;
+		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
+				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getPhone();
 	}
 
 }
@@ -239,44 +240,25 @@ class AddressBook extends Contact {
 			System.out.println("Contact edited");
 	}
 
-	AddressBook(String f_name, String l_name, String address, String city, String state, String zip,
-			String phone_number, String email) {
-
-	}
-
 	AddressBook() {
 
 	}
 }
 
 class AddressBookDictionary extends AddressBook {
-	private ArrayList<AddressBook> address_book = new ArrayList<AddressBook>();
 
-	public void addAddressBook(AddressBook addressbook) {
-		address_book.add(addressbook);
+	Map<String, AddressBook> address_book = new HashMap<>();
+
+	public void addAddressBook(String name,AddressBook addressbook) {
+		address_book.put(name,addressbook);
 	}
 
 	public boolean isPresentAddressBook(String name) {
-		boolean check = false;
-		for (AddressBook ab : address_book) {
-			if (ab.getName().equals(name)) {
-				check = true;
-				break;
-			}
-
-		}
-		return check;
+		return address_book.containsKey(name);
 	}
 
 	public AddressBook returnAddressBook(String name) {
-		AddressBook ret_ab = address_book.get(0);
-		for (AddressBook ab : address_book) {
-			if (ab.getName().equals(name)) {
-				ret_ab = ab;
-				break;
-			}
-		}
-		return ret_ab;
+		return address_book.get(name);
 	}
 
 }
