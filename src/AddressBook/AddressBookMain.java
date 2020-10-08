@@ -2,7 +2,6 @@ package AddressBook;
 
 import java.util.*;
 
-import static AddressBook.AddressBookMain.getContact;
 
 public class AddressBookMain {
 	public static Contact getContact(String first, String last) {
@@ -39,9 +38,11 @@ public class AddressBookMain {
 		boolean loop1 = true, loop2 = true,add_avail;
 		int choice1, choice2;
 		AddressBook book;
-		String name,address_book_name,first_name,last_name;
+		String name,address_book_name,first_name,last_name,city,state;
 		while (loop1) {
-			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" + "Enter 0 to exit");
+			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" +
+					"Enter 3 to view all people of a city\n" + "Enter 4 to view all people of a state\n" +
+					"Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
 			case 1:
@@ -91,6 +92,17 @@ public class AddressBookMain {
 				
 				}
 				break;
+			case 3 :
+				System.out.println("Enter the name of city");
+				city= sc.nextLine();
+				abd.viewByCity(city);
+				break;
+			case 4 :
+				System.out.println("Enter the name of State");
+				state= sc.nextLine();
+				abd.viewByState(state);
+				break;
+
 			default:
 				loop1 = false;
 				break;
@@ -101,8 +113,8 @@ public class AddressBookMain {
 }
 
 class Contact {
-	protected static String f_name;
-	protected static String l_name;
+	protected String f_name;
+	protected String l_name;
 	protected String address;
 	protected String city;
 	protected String state;
@@ -114,7 +126,7 @@ class Contact {
 		this.f_name = f_name;
 	}
 
-	public static String getFirst() {
+	public String getFirst() {
 		return f_name;
 	}
 
@@ -122,7 +134,7 @@ class Contact {
 		this.l_name = l_name;
 	}
 
-	public static String getLast() {
+	public String getLast() {
 		return l_name;
 	}
 
@@ -176,7 +188,7 @@ class Contact {
 
 	public String toString() {
 		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
-				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getPhone();
+				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getEmail();
 	}
 
 }
@@ -213,6 +225,12 @@ class AddressBook extends Contact {
 	public int countByState(String state){
 		return (int) address_book.stream().filter(c -> c.getState().equalsIgnoreCase(state)).count();
 	}
+	public void viewByCity(String city){
+		address_book.stream().filter(contact -> contact.getCity().equalsIgnoreCase(city)).forEach(contact -> System.out.println(contact));
+	}
+	public void viewByState(String state){
+		address_book.stream().filter(contact -> contact.getState().equalsIgnoreCase(state)).forEach(contact -> System.out.println(contact));
+	}
 
 	public void deleteContact() {
 		Scanner sc=new Scanner(System.in);
@@ -243,7 +261,20 @@ class AddressBook extends Contact {
 		boolean check = false;
 		for (Contact c : address_book) {
 			if (c.f_name.equalsIgnoreCase(first_name) && c.l_name.equalsIgnoreCase(last_name)) {
-				c=getContact(first_name,last_name);
+				c.setFirst(f_name);
+				c.setLast(l_name);
+				System.out.println("Enter Address");
+				c.setAddress(sc.nextLine());
+				System.out.println("Enter City");
+				c.setCity(sc.nextLine());
+				System.out.println("Enter State");
+				c.setState(sc.nextLine());
+				System.out.println("Enter ZIP");
+				c.setZip(sc.nextLine());
+				System.out.println("Enter Phone Number");
+				c.setPhone(sc.nextLine());
+				System.out.println("Enter Email Id");
+				c.setEmail(sc.nextLine());
 				check = true;
 				break;
 			}
@@ -280,6 +311,12 @@ class AddressBookDictionary extends AddressBook {
 	}
 	public int countByState(String state) {
 		return address_book_dictionary.values().stream().mapToInt(addressBook -> addressBook.countByState(state)).sum();
+	}
+	public void viewByCity(String city) {
+		address_book_dictionary.values().stream().forEach(addressBook -> addressBook.viewByCity(city));
+	}
+	public void viewByState(String state) {
+		address_book_dictionary.values().stream().forEach(addressBook -> addressBook.viewByState(state));
 	}
 
 }
