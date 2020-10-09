@@ -2,6 +2,8 @@ package AddressBook;
 
 import java.util.*;
 
+import static java.lang.CharSequence.compare;
+
 
 public class AddressBookMain {
 	public static Contact getContact(String first, String last) {
@@ -41,7 +43,9 @@ public class AddressBookMain {
 		String name,address_book_name,first_name,last_name,city,state;
 		while (loop1) {
 			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" +
-					"Enter 3 to view all people of a city\n" + "Enter 4 to view all people of a state\n" +
+					"Enter 3 to return all people of a city\n" + "Enter 4 to return all people of a state\n" +
+					"Enter 5 to view all people of a city\n" + "Enter 6 to view all people of a state\n" +
+					//"Enter 7 to get number of people in the city\n" + "Enter 8 to get number of people in the state" +
 					"Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
@@ -66,11 +70,14 @@ public class AddressBookMain {
 						choice2 = Integer.parseInt(sc.nextLine());
 						switch (choice2) {
 						case 1:
+							Contact contact= new Contact();
 							System.out.println("Enter first name");
 							first_name=sc.nextLine();
+							contact.setFirst(first_name);
 							System.out.println("Enter last name");
 							last_name=sc.nextLine();
-							if(book.nameExists(first_name,last_name))
+							contact.setLast(last_name);
+							if(book.nameExists(contact))
 								System.out.println("Contact already exists");
 							else
 								book.addDetails(getContact(first_name, last_name));
@@ -92,17 +99,37 @@ public class AddressBookMain {
 				
 				}
 				break;
-			case 3 :
+				case 3 :
+					System.out.println("Enter the name of city");
+					city= sc.nextLine();
+					ArrayList<Contact> cityContact = abd.returnByCity(city);
+					break;
+				case 4 :
+					System.out.println("Enter the name of state");
+					state= sc.nextLine();
+					ArrayList<Contact> stateContact = abd.returnByState(state);
+					break;
+			case 5 :
 				System.out.println("Enter the name of city");
 				city= sc.nextLine();
 				abd.viewByCity(city);
 				break;
-			case 4 :
+			case 6 :
 				System.out.println("Enter the name of State");
 				state= sc.nextLine();
 				abd.viewByState(state);
 				break;
-
+			/*case 5:
+				System.out.println("Enter the name of city");
+				city= sc.nextLine();
+				abd.countByCity(city);
+				break;
+			case 6:
+				System.out.println("Enter the name of State");
+				state= sc.nextLine();
+				abd.countByState(state);
+				break;
+*/
 			default:
 				loop1 = false;
 				break;
@@ -185,6 +212,13 @@ class Contact {
 	public String getEmail() {
 		return email;
 	}
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Contact ab = (Contact) o;
+		return compare(ab.getFirst(),getFirst())==0 && compare(ab.getLast(), getLast())==0;
+	}
 
 	public String toString() {
 		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
@@ -196,6 +230,8 @@ class Contact {
 class AddressBook extends Contact {
 	private ArrayList<Contact> address_book = new ArrayList<>();
 	private String name;
+	Map<String,ArrayList<Contact>> city_wise_map = new HashMap<>();
+	Map<String,ArrayList<Contact>> state_wise_map = new HashMap<>();
 
 	public void setName(String name) {
 		this.name = name;
@@ -205,13 +241,36 @@ class AddressBook extends Contact {
 		return name;
 	}
 
-	public boolean nameExists(String first_name, String last_name) {
-		return address_book.stream().anyMatch(contact -> contact.getFirst().equalsIgnoreCase(first_name) &&
-				contact.getLast().equalsIgnoreCase(last_name));
+
+
+	public boolean nameExists(Contact c) {
+		return address_book.stream().anyMatch(contact -> contact.equals(c));
 	}
 
 	public void addDetails(Contact contact) {
 		address_book.add(contact);
+
+		ArrayList<Contact> cityContact = city_wise_map.get(contact.getCity());
+		if(cityContact==null){
+			ArrayList<Contact> firstInsertion = new ArrayList<>();
+			firstInsertion.add(contact);
+			city_wise_map.put(contact.getCity(),firstInsertion);
+		}
+		else {
+			cityContact.add(contact);
+			city_wise_map.put(contact.getCity(), cityContact);
+		}
+
+		ArrayList<Contact> stateContact = state_wise_map.get(contact.getState());
+		if(cityContact==null){
+			ArrayList<Contact> firstInsertion = new ArrayList<>();
+			firstInsertion.add(contact);
+			state_wise_map.put(contact.getState(),firstInsertion);
+		}
+		else {
+			stateContact.add(contact);
+			state_wise_map.put(contact.getState(), stateContact);
+		}
 	}
 
 	public void viewAllContacts() {
@@ -220,16 +279,25 @@ class AddressBook extends Contact {
 		}
 	}
 	public int countByCity(String city){
-		return (int) address_book.stream().filter(c -> c.getCity().equalsIgnoreCase(city)).count();
+		return city_wise_map.get(city).size();
 	}
 	public int countByState(String state){
-		return (int) address_book.stream().filter(c -> c.getState().equalsIgnoreCase(state)).count();
+		return state_wise_map.get(state).size();
 	}
-	public void viewByCity(String city){
-		address_book.stream().filter(contact -> contact.getCity().equalsIgnoreCase(city)).forEach(contact -> System.out.println(contact));
+
+	public ArrayList<Contact> viewPersonByCity(String city) {
+		return city_wise_map.get(city);
+	}
+	public ArrayList<Contact> viewPersonByState(String state) {
+		return state_wise_map.get(state);
+	}
+
+
+	public void viewByCity(String city) {
+		city_wise_map.values().stream().forEach(contacts -> System.out.println(contacts));
 	}
 	public void viewByState(String state){
-		address_book.stream().filter(contact -> contact.getState().equalsIgnoreCase(state)).forEach(contact -> System.out.println(contact));
+		state_wise_map.values().stream().forEach(contacts -> System.out.println(contacts));
 	}
 
 	public void deleteContact() {
@@ -294,6 +362,7 @@ class AddressBookDictionary extends AddressBook {
 
 	Map<String, AddressBook> address_book_dictionary = new HashMap<>();
 
+
 	public void addAddressBook(String name,AddressBook addressbook) {
 		address_book_dictionary.put(name,addressbook);
 	}
@@ -317,6 +386,16 @@ class AddressBookDictionary extends AddressBook {
 	}
 	public void viewByState(String state) {
 		address_book_dictionary.values().stream().forEach(addressBook -> addressBook.viewByState(state));
+	}
+	public ArrayList<Contact> returnByCity(String city) {
+		ArrayList<Contact> cityContact = new ArrayList<>();
+		address_book_dictionary.values().stream().forEach(c->cityContact.addAll(c.viewPersonByCity(city)));
+		return cityContact;
+	}
+	public ArrayList<Contact> returnByState(String state) {
+		ArrayList<Contact> stateContact = new ArrayList<>();
+		address_book_dictionary.values().stream().forEach(c->stateContact.addAll(c.viewPersonByState(state)));
+		return  stateContact;
 	}
 
 }
