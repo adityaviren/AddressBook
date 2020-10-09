@@ -45,7 +45,7 @@ public class AddressBookMain {
 			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" +
 					"Enter 3 to return all people of a city\n" + "Enter 4 to return all people of a state\n" +
 					"Enter 5 to view all people of a city\n" + "Enter 6 to view all people of a state\n" +
-					//"Enter 7 to get number of people in the city\n" + "Enter 8 to get number of people in the state" +
+					"Enter 7 to get number of people in the city\n" + "Enter 8 to get number of people in the state" +
 					"Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
@@ -119,17 +119,17 @@ public class AddressBookMain {
 				state= sc.nextLine();
 				abd.viewByState(state);
 				break;
-			/*case 5:
+			case 7:
 				System.out.println("Enter the name of city");
 				city= sc.nextLine();
 				abd.countByCity(city);
 				break;
-			case 6:
+			case 8:
 				System.out.println("Enter the name of State");
 				state= sc.nextLine();
 				abd.countByState(state);
 				break;
-*/
+
 			default:
 				loop1 = false;
 				break;
