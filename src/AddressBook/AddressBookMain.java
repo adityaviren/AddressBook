@@ -1,6 +1,7 @@
 package AddressBook;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.CharSequence.compare;
 
@@ -45,7 +46,7 @@ public class AddressBookMain {
 			System.out.println("Enter 1 to add new Address Book\n" + "Enter 2 to modify an Address Book\n" +
 					"Enter 3 to return all people of a city\n" + "Enter 4 to return all people of a state\n" +
 					"Enter 5 to view all people of a city\n" + "Enter 6 to view all people of a state\n" +
-					"Enter 7 to get number of people in the city\n" + "Enter 8 to get number of people in the state" +
+					"Enter 7 to get number of people in the city\n" + "Enter 8 to get number of people in the state\n" +
 					"Enter 0 to exit");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
@@ -66,7 +67,8 @@ public class AddressBookMain {
 					loop2=true;
 					while (loop2) {
 						System.out.println("Enter 1 to add contact\n" + "Enter 2 to view all contacts\n"
-								+ "Enter 3 to edit a contact\n" + "Enter 4 to delete a contact\n" + "Enter 0 to exit");
+								+ "Enter 3 to edit a contact\n" + "Enter 4 to delete a contact\n" +
+								"Enter 5 to sort the address book by name\nEnter 0 to exit");
 						choice2 = Integer.parseInt(sc.nextLine());
 						switch (choice2) {
 						case 1:
@@ -91,6 +93,9 @@ public class AddressBookMain {
 						case 4:
 							book.deleteContact();
 							break;
+							case 5:
+								book.sortByName();
+								break;
 						default:
 							loop2=false;
 							break;
@@ -164,6 +169,9 @@ class Contact {
 	public String getLast() {
 		return l_name;
 	}
+	public String getName(){
+		return f_name+l_name;
+	}
 
 	public void setAddress(String address) {
 		this.address = address;
@@ -222,7 +230,7 @@ class Contact {
 
 	public String toString() {
 		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
-				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getEmail();
+				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getEmail() +"\n";
 	}
 
 }
@@ -272,11 +280,14 @@ class AddressBook extends Contact {
 			state_wise_map.put(contact.getState(), stateContact);
 		}
 	}
+	public void sortByName() {
+		List<Contact> list=address_book.stream().sorted((c1,c2)->c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
+		address_book = new ArrayList<>(list);
+		address_book.stream().forEach(System.out::println);
+	}
 
 	public void viewAllContacts() {
-		for (Contact c : address_book) {
-			System.out.println(c);
-		}
+		address_book.stream().forEach(System.out::println);
 	}
 	public int countByCity(String city){
 		return city_wise_map.get(city).size();
@@ -328,8 +339,9 @@ class AddressBook extends Contact {
 		String last_name = sc.nextLine();
 		boolean check = false;
 		for (Contact c : address_book) {
+			
 			if (c.f_name.equalsIgnoreCase(first_name) && c.l_name.equalsIgnoreCase(last_name)) {
-				c.setFirst(f_name);
+				c.setFirst(first_name);
 				c.setLast(l_name);
 				System.out.println("Enter Address");
 				c.setAddress(sc.nextLine());
@@ -361,7 +373,6 @@ class AddressBook extends Contact {
 class AddressBookDictionary extends AddressBook {
 
 	Map<String, AddressBook> address_book_dictionary = new HashMap<>();
-
 
 	public void addAddressBook(String name,AddressBook addressbook) {
 		address_book_dictionary.put(name,addressbook);
