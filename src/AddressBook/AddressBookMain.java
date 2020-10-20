@@ -1,5 +1,6 @@
 package AddressBook;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,6 +81,8 @@ public class AddressBookMain {
 								Enter 6 to sort the address book by city
 								Enter 7 to sort the address book by state
 								Enter 8 to sort the address book by zip
+								Enter 9 to read from a file
+								Enter 10 to write to a file
 								Enter 0 to exit""");
 						choice2 = Integer.parseInt(sc.nextLine());
 						switch (choice2) {
@@ -117,6 +120,17 @@ public class AddressBookMain {
 							case 8:
 								book.sortByZip();
 								break;
+							case 9:
+								try{
+									book.readFromFile();
+								}catch (FileNotFoundException e){
+									System.out.println("File not found");
+								}
+								break;
+							case 10:
+								book.writeInFile();
+								break;
+
 						default:
 							loop2=false;
 							break;
@@ -253,7 +267,7 @@ class Contact {
 
 	public String toString() {
 		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
-				+ "\nPhone Number " + getPhone() + "\nEmail id :  " + getEmail() +"\n";
+				+ "\nPhone Number : " + getPhone() + "\nEmail id :  " + getEmail() +"\n";
 	}
 
 }
@@ -408,6 +422,48 @@ class AddressBook extends Contact {
 		else
 			System.out.println("Contact edited");
 	}
+
+	public void readFromFile() throws FileNotFoundException {
+		File f=new File("F:\\Local contacts.txt");
+		Scanner myFile = new Scanner(f);
+		while(myFile.hasNextLine()){
+			try
+			{
+				Contact c= new Contact();
+				String data=myFile.nextLine();
+				String[] str=data.split(" ");
+				c.setFirst(str[0]);
+				c.setLast(str[1]);
+				c.setAddress(str[2]);
+				c.setCity(str[3]);
+				c.setState(str[4]);
+				c.setZip(str[5]);
+				c.setPhone(str[6]);
+				c.setEmail(str[7]);
+				addDetails(c);
+			}catch (Exception e){
+				System.out.println("Invalid contact");
+			}
+		}
+
+	}
+
+	public void writeInFile() {
+		try {
+			FileWriter fileWriter = new FileWriter("F:\\Address Book.txt",true);
+			for (Contact c:address_book){
+				fileWriter.write(c.getFirst()+" "+c.getLast()+" "
+						+c.getAddress()+" "+c.getCity()+" "+c.getState()+" "+c.getState()+" "
+						+c.getPhone()+" "+c.getEmail()+"\n");
+			}
+			fileWriter.close();
+		}
+		catch (IOException e){
+			System.out.println("File not exists.");
+		}
+	}
+
+
 }
 
 class AddressBookDictionary extends AddressBook {
