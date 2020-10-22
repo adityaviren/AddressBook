@@ -1,6 +1,17 @@
 package AddressBook;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.exceptions.CsvValidationException;
+
+import javax.print.DocFlavor;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,23 +67,23 @@ public class AddressBookMain {
 					Enter 0 to exit""");
 			choice1 = Integer.parseInt(sc.nextLine());
 			switch (choice1) {
-			case 1:
-				System.out.println("Enter the name of Address Book");
-				address_book_name=sc.nextLine();
-				abd.addAddressBook(address_book_name,getAddressBook(address_book_name));
-				break;
-			case 2:
-				System.out.println("Enter the name of Address Book");
-				name = sc.nextLine();
-				add_avail = abd.isPresentAddressBook(name);
-				if (!add_avail)
-					System.out.println("Address Book not found");
-				else {
+				case 1:
+					System.out.println("Enter the name of Address Book");
+					address_book_name=sc.nextLine();
+					abd.addAddressBook(address_book_name,getAddressBook(address_book_name));
+					break;
+				case 2:
+					System.out.println("Enter the name of Address Book");
+					name = sc.nextLine();
+					add_avail = abd.isPresentAddressBook(name);
+					if (!add_avail)
+						System.out.println("Address Book not found");
+					else {
 
-					book = abd.returnAddressBook(name);
-					loop2=true;
-					while (loop2) {
-						System.out.println("""
+						book = abd.returnAddressBook(name);
+						loop2=true;
+						while (loop2) {
+							System.out.println("""
 								Enter 1 to add contact
 								Enter 2 to view all contacts
 								Enter 3 to edit a contact
@@ -83,62 +94,84 @@ public class AddressBookMain {
 								Enter 8 to sort the address book by zip
 								Enter 9 to read from a file
 								Enter 10 to write to a file
+								Enter 11 to write in a CSV file
+								Enter 12 to read from a CSV file
 								Enter 0 to exit""");
-						choice2 = Integer.parseInt(sc.nextLine());
-						switch (choice2) {
-						case 1:
-							Contact contact= new Contact();
-							System.out.println("Enter first name");
-							first_name=sc.nextLine();
-							contact.setFirst(first_name);
-							System.out.println("Enter last name");
-							last_name=sc.nextLine();
-							contact.setLast(last_name);
-							if(book.nameExists(contact))
-								System.out.println("Contact already exists");
-							else
-								book.addDetails(getContact(first_name, last_name));
-							break;
-						case 2:
-							book.viewAllContacts();
-							break;
-						case 3:
-							book.editContact();
-							break;
-						case 4:
-							book.deleteContact();
-							break;
-							case 5:
-								book.sortByName();
-								break;
-							case 6:
-								book.sortByCity();
-								break;
-							case 7:
-								book.sortByState();
-								break;
-							case 8:
-								book.sortByZip();
-								break;
-							case 9:
-								try{
-									book.readFromFile();
-								}catch (FileNotFoundException e){
-									System.out.println("File not found");
-								}
-								break;
-							case 10:
-								book.writeInFile();
-								break;
+							choice2 = Integer.parseInt(sc.nextLine());
+							switch (choice2) {
+								case 1:
+									Contact contact= new Contact();
+									System.out.println("Enter first name");
+									first_name=sc.nextLine();
+									contact.setFirst(first_name);
+									System.out.println("Enter last name");
+									last_name=sc.nextLine();
+									contact.setLast(last_name);
+									if(book.nameExists(contact))
+										System.out.println("Contact already exists");
+									else
+										book.addDetails(getContact(first_name, last_name));
+									break;
+								case 2:
+									book.viewAllContacts();
+									break;
+								case 3:
+									book.editContact();
+									break;
+								case 4:
+									book.deleteContact();
+									break;
+								case 5:
+									book.sortByName();
+									break;
+								case 6:
+									book.sortByCity();
+									break;
+								case 7:
+									book.sortByState();
+									break;
+								case 8:
+									book.sortByZip();
+									break;
+								case 9:
+									try{
+										book.readFromFile();
+									}catch (FileNotFoundException e){
+										System.out.println("File not found");
+									}
+									break;
+								case 10:
+									book.writeInFile();
+									break;
+								case 11:
+									try {
+										book.writeCSV();
+									} catch (IOException e) {
+										e.printStackTrace();
+									} catch (CsvDataTypeMismatchException e) {
+										e.printStackTrace();
+									} catch (CsvRequiredFieldEmptyException e) {
+										e.printStackTrace();
+									}
+									break;
+								case 12:
+									try {
+										book.readCSV();
+									} catch (IOException e) {
+										e.printStackTrace();
+									} catch (CsvValidationException e) {
+										e.printStackTrace();
+									}
+									break;
 
-						default:
-							loop2=false;
-							break;
+								default:
+									loop2=false;
+									break;
+							}
 						}
+
 					}
-				
-				}
-				break;
+					break;
 				case 3 :
 					System.out.println("Enter the name of city");
 					city= sc.nextLine();
@@ -149,127 +182,34 @@ public class AddressBookMain {
 					state= sc.nextLine();
 					ArrayList<Contact> stateContact = abd.returnByState(state);
 					break;
-			case 5 :
-				System.out.println("Enter the name of city");
-				city= sc.nextLine();
-				abd.viewByCity(city);
-				break;
-			case 6 :
-				System.out.println("Enter the name of State");
-				state= sc.nextLine();
-				abd.viewByState(state);
-				break;
-			case 7:
-				System.out.println("Enter the name of city");
-				city= sc.nextLine();
-				abd.countByCity(city);
-				break;
-			case 8:
-				System.out.println("Enter the name of State");
-				state= sc.nextLine();
-				abd.countByState(state);
-				break;
+				case 5 :
+					System.out.println("Enter the name of city");
+					city= sc.nextLine();
+					abd.viewByCity(city);
+					break;
+				case 6 :
+					System.out.println("Enter the name of State");
+					state= sc.nextLine();
+					abd.viewByState(state);
+					break;
+				case 7:
+					System.out.println("Enter the name of city");
+					city= sc.nextLine();
+					abd.countByCity(city);
+					break;
+				case 8:
+					System.out.println("Enter the name of State");
+					state= sc.nextLine();
+					abd.countByState(state);
+					break;
 
-			default:
-				loop1 = false;
-				break;
+				default:
+					loop1 = false;
+					break;
 
 			}
 		}
 	}
-}
-
-class Contact {
-	protected String f_name;
-	protected String l_name;
-	protected String address;
-	protected String city;
-	protected String state;
-	protected String zip;
-	protected String phone_number;
-	protected String email;
-
-	public String getFirst() {
-		return f_name;
-	}
-
-	public void setFirst(String f_name) {
-		this.f_name = f_name;
-	}
-
-	public String getLast() {
-		return l_name;
-	}
-
-	public void setLast(String l_name) {
-		this.l_name = l_name;
-	}
-
-	public String getName(){
-		return f_name+l_name;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getZip() {
-		return zip;
-	}
-
-	public void setZip(String zip) {
-		this.zip = zip;
-	}
-
-	public String getPhone() {
-		return phone_number;
-	}
-
-	public void setPhone(String phone_number) {
-		this.phone_number = phone_number;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Contact ab = (Contact) o;
-		return compare(ab.getFirst(),getFirst())==0 && compare(ab.getLast(), getLast())==0;
-	}
-
-	public String toString() {
-		return "Name :" + getFirst() + " " + getLast() + "\nAddress :" + getAddress() + " " + getCity() + " " + getState() + " " + getZip()
-				+ "\nPhone Number : " + getPhone() + "\nEmail id :  " + getEmail() +"\n";
-	}
-
 }
 
 class AddressBook extends Contact {
@@ -460,6 +400,39 @@ class AddressBook extends Contact {
 		}
 		catch (IOException e){
 			System.out.println("File not exists.");
+		}
+	}
+
+
+	public void writeCSV() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+		String CSV_write_file = "F:\\AddressBookCSVwrite.txt";
+		Writer writer = Files.newBufferedWriter(Paths.get(CSV_write_file));
+
+		StatefulBeanToCsv<Contact> beanToCsv=new StatefulBeanToCsvBuilder(writer).withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).build();
+		beanToCsv.write(address_book);
+		writer.close();
+
+	}
+
+	public void readCSV() throws IOException, CsvValidationException {
+		String CSV_read_file = "F:\\AddressBookCSVread.txt";
+		Reader reader = Files.newBufferedReader(Paths.get(CSV_read_file));
+
+		CSVReader csvReader = new CSVReader(reader);
+
+		String[] nextRecord;
+		nextRecord = csvReader.readNext();
+		while((nextRecord = csvReader.readNext())!=null) {
+			Contact c = new Contact();
+			c.setAddress(nextRecord[0]);
+			c.setCity(nextRecord[1]);
+			c.setEmail(nextRecord[2]);
+			c.setFirst(nextRecord[3]);
+			c.setLast(nextRecord[4]);
+			c.setPhone(nextRecord[5]);
+			c.setState(nextRecord[6]);
+			c.setZip(nextRecord[7]);
+			address_book.add(c);
 		}
 	}
 
