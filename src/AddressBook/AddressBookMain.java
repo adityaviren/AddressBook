@@ -1,7 +1,10 @@
 package AddressBook;
 
+import com.google.gson.Gson;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -46,7 +49,7 @@ public class AddressBookMain {
 		return ab;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		AddressBookDictionary abd = new AddressBookDictionary();
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Welcome to Address Book System");
@@ -96,6 +99,8 @@ public class AddressBookMain {
 								Enter 10 to write to a file
 								Enter 11 to write in a CSV file
 								Enter 12 to read from a CSV file
+								Enter 13 to write in a JSON file
+								Enter 14 to read from JSON file
 								Enter 0 to exit""");
 							choice2 = Integer.parseInt(sc.nextLine());
 							switch (choice2) {
@@ -162,6 +167,12 @@ public class AddressBookMain {
 									} catch (CsvValidationException e) {
 										e.printStackTrace();
 									}
+									break;
+								case 13:
+									book.writeJSON();
+									break;
+								case 14:
+									book.readJSON();
 									break;
 
 								default:
@@ -435,6 +446,27 @@ class AddressBook extends Contact {
 			address_book.add(c);
 		}
 	}
+
+	public void writeJSON() throws IOException {
+		String JSON_write_file = "F:\\Directory\\AddressBookJSONwrite.txt";
+		Gson gson = new Gson();
+		String json = gson.toJson(address_book);
+		FileWriter Writer = new FileWriter(JSON_write_file);
+		Writer.write(json);
+		Writer.close();
+	}
+
+	public void readJSON() throws FileNotFoundException {
+		String JSON_read_file = "F:\\Directory\\AddressBookJSONread.txt";
+		Gson gson = new Gson();
+		BufferedReader br= new BufferedReader(new FileReader(JSON_read_file));
+		Contact[] usrObj= gson.fromJson(br, Contact[].class);
+		List<Contact> contactList = Arrays.asList(usrObj);
+		for (Contact c : contactList){
+			address_book.add(c);
+		}
+	}
+
 
 
 }
